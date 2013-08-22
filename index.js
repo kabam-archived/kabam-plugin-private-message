@@ -90,6 +90,11 @@ exports.routes = function (kabam) {
             if (err) {
               throw err;
             }
+            kabam.emit('notify:pm',{
+              'user':userFound,
+              'from':request.user,
+              'message':text
+            });
             response.send(201);
           });
         } else {
