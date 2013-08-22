@@ -19,6 +19,9 @@
   ],
   "author": "Anatolij Ostroumov",
   "license": "MIT",
+  "dependencies":{
+    "validator":"*"
+  },
   "bugs": {
     "url": "https://github.com/mykabam/kabam-plugin-private-message/issues"
   }
