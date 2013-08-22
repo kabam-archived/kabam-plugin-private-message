@@ -1,6 +1,6 @@
 var sanitaze = require('validator').sanitize;
 
-exports.name = 'kabamPluginPrivatMessage';
+exports.name = 'kabamPluginPrivateMessage';
 exports.model = {
   'Message': function (kabam) {
     var messageSchema = new kabam.mongoose.Schema({
@@ -83,11 +83,13 @@ exports.routes = function (kabam) {
         }
         if (userFound) {
           request.model.Message.create({
-            from : request.user._id,
-            to : userFound._id,
+            from: request.user._id,
+            to: userFound._id,
             message: text
-          },function(err,messageCreated){
-            if(err) throw err;
+          }, function (err, messageCreated) {
+            if (err) {
+              throw err;
+            }
             response.send(201);
           });
         } else {
