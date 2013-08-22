@@ -2,10 +2,10 @@ var sanitaze = require('validator').sanitize;
 
 exports.name = 'kabamPluginPrivatMessage';
 exports.model = {
-  'private_messages': function (mongoose, config) {
-    var messageSchema = new mongoose.Schema({
-      'to': mongoose.Schema.Types.ObjectId,
-      'from': mongoose.Schema.Types.ObjectId,
+  'Message': function (kabam) {
+    var messageSchema = new kabam.mongoose.Schema({
+      'to': kabam.mongoose.Schema.Types.ObjectId,
+      'from': kabam.mongoose.Schema.Types.ObjectId,
       'created_at': { type: Date, default: Date.now },
       'message': {type: String, trim: true } //trim whitespaces - http://mongoosejs.com/docs/api.html#schema_string_SchemaString-trim
     });
@@ -16,7 +16,7 @@ exports.model = {
       created_at: 1
     });
 
-    return mongoose.model('private_messages', messageSchema);
+    return kabam.mongoConnection.model('messages', messageSchema);
   }
 };
 
@@ -25,7 +25,7 @@ exports.routes = function (kabam) {
     if (request.user) {
       var mesgLimit = request.query['limit'] ? request.query['limit'] : 10,
         mesgOffset = request.query['offset'] ? request.query['offset'] : 0;
-      request.model.private_messages
+      request.model.Message
         .find({'to': request.user._id})
         .skip(mesgOffset)
         .limit(mesgLimit)
@@ -49,7 +49,7 @@ exports.routes = function (kabam) {
           throw err;
         }
         if (userFound) {
-          request.model.private_messages
+          request.model.Message
             .find({
               $or: [
                 {'to': request.user._id, 'from': userFound._id},
@@ -82,7 +82,7 @@ exports.routes = function (kabam) {
           throw err;
         }
         if (userFound) {
-          request.model.private_messages.create({
+          request.model.Message.create({
             from : request.user._id,
             to : userFound._id,
             message: text
