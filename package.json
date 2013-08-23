@@ -4,7 +4,7 @@
   "description": "Kabam plugin with rest api for sending private messages between users - dialog style",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/mocha --reporter spec"
   },
   "repository": {
     "type": "git",
@@ -21,6 +21,13 @@
   "license": "MIT",
   "dependencies":{
     "validator":"*"
+  },
+  "devDependencies":{
+    "async":"*",
+    "request":"*",
+    "kabam-kernel": "git+https://github.com/mykabam/kabam-kernel.git",
+    "mocha":"*",
+    "should":"*"
   },
   "bugs": {
     "url": "https://github.com/mykabam/kabam-plugin-private-message/issues"
