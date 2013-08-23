@@ -16,11 +16,13 @@ exports.routes = function (kabam) {
       response.send(400);
     }
   });
+
   kabam.app.get('/api/messages/:username', function (request, response) {
     if (request.user) {
       var mesgLimit = request.query['limit'] ? request.query['limit'] : 10,
         mesgOffset = request.query['offset'] ? request.query['offset'] : 0;
-      request.user.getDialog(request.params.username,mesgLimit,mesgOffset, function(err,messages){
+
+      request.user.getDialog(request.params.username, mesgLimit, mesgOffset, function(err,messages){
         if(err && err.message === 'User do not exists!'){
           response.send(404);
         } else {

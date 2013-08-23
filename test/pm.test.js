@@ -120,12 +120,12 @@ describe('kabam-plugin-private-message', function () {
     });
 
   });
-/*/
+
   describe('User2 recieves dialog with User1',function(){
     var response, body;
     before(function(done){
       request({
-          'url': 'http://localhost:3011/api/messages/User1?mwckey='+User2.apiKey,
+          'url': 'http://localhost:3011/api/messages/'+User1.username+'?mwckey='+User2.apiKey,
           'method': 'GET'
         },
         function (err, r, b) {
@@ -151,7 +151,7 @@ describe('kabam-plugin-private-message', function () {
     });
 
   });
-//*/
+
   after(function (done) {
     async.parallel([
       function (cb) {
