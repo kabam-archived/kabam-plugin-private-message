@@ -27,7 +27,15 @@
     "request":"*",
     "kabam-kernel": "git+https://github.com/mykabam/kabam-kernel.git",
     "mocha":"*",
-    "should":"*"
+    "should":"*",
+    "grunt": "*",
+    "grunt-contrib-watch": "*",
+    "grunt-contrib-jshint": "*",
+    "grunt-ngdoc": "*",
+    "grunt-contrib-copy": "*",
+    "grunt-ngdocs": "*",
+    "grunt-contrib-clean": "*",
+    "grunt-simple-mocha": "*"
   },
   "bugs": {
     "url": "https://github.com/mykabam/kabam-plugin-private-message/issues"
