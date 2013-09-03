@@ -1,14 +1,15 @@
 var should = require('should'),
   async = require('async'),
   KabamKernel = require('kabam-kernel'),
-  request = require('request');
+  request = require('request'),
+  port = 3019;
 
 describe('kabam-plugin-private-message', function () {
   var kabam;
   before(function (done) {
 
     kabam = KabamKernel({
-      'hostUrl': 'http://localhost:3011',
+      'hostUrl': 'http://localhost:'+port,
       'mongoUrl': 'mongodb://localhost/mwc_dev',
       'disableCsrf': true // NEVER DO IT!
     });
@@ -17,7 +18,7 @@ describe('kabam-plugin-private-message', function () {
       done();
     });
     kabam.usePlugin(require('./../index.js'));
-    kabam.start(3011);
+    kabam.start(port);
 
   });
 
@@ -63,7 +64,7 @@ describe('kabam-plugin-private-message', function () {
         });
 
         request({
-            'url': 'http://localhost:3011/api/messages/testSpamer2',
+            'url': 'http://localhost:'+port+'/api/messages/testSpamer2',
             'method': 'POST',
             'json': {
               'mwckey': User1.apiKey, //authorize as User1
@@ -102,7 +103,7 @@ describe('kabam-plugin-private-message', function () {
       var response, body;
       before(function (done) {
         request({
-            'url': 'http://localhost:3011/api/messages?mwckey=' + User2.apiKey,
+            'url': 'http://localhost:'+port+'/api/messages?mwckey=' + User2.apiKey,
             'method': 'GET'
           },
           function (err, r, b) {
@@ -133,7 +134,7 @@ describe('kabam-plugin-private-message', function () {
       var response, body;
       before(function (done) {
         request({
-            'url': 'http://localhost:3011/api/messages/' + User1.username + '?mwckey=' + User2.apiKey,
+            'url': 'http://localhost:'+port+'/api/messages/' + User1.username + '?mwckey=' + User2.apiKey,
             'method': 'GET'
           },
           function (err, r, b) {
