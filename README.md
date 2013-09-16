@@ -27,7 +27,8 @@ POST /api/messages/:username
 ==========================
 
 Sends the message to :username.
-Mandatory parameters are `username` and `message`
+Mandatory parameters are `username` (string) and `message` (string).
+Optional parameter is `title` (string)
 
 
 When user recieves message, the kabamKernel emits event.
