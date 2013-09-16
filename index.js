@@ -38,7 +38,7 @@ exports.routes = function (kabam) {
 
   kabam.app.post('/api/messages/:username', function (request, response) {
     if (request.user) {
-      request.user.sendMessage(request.params.username,request.body.message,function(err){
+      request.user.sendMessage(request.params.username, request.body.title, request.body.message, function(err){
         if(err) throw err;
         if(request.is('json')){
           response.json(201,{'status':201,'description':'Message is send!'});
