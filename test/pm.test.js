@@ -1,16 +1,17 @@
 var should = require('should'),
   async = require('async'),
-  KabamKernel = require('kabam-kernel'),
+  kabamKernel = require('kabam-kernel'),
   request = require('request'),
   port = 3019;
 
 describe('kabam-plugin-private-message', function () {
   var kabam;
   before(function (done) {
+    this.timeout(3000);
 
-    kabam = KabamKernel({
-      'hostUrl': 'http://localhost:'+port,
-      'mongoUrl': 'mongodb://localhost/mwc_dev',
+    kabam = kabamKernel({
+      'HOST_URL': 'http://localhost:'+port,
+      'MONGO_URL': 'mongodb://localhost/kabam_test',
       'disableCsrf': true // NEVER DO IT!
     });
 
@@ -19,9 +20,7 @@ describe('kabam-plugin-private-message', function () {
     });
     kabam.usePlugin(require('./../index.js'));
     kabam.start(port);
-
   });
-
 
   describe('it works', function () {
     var User1, User2;
@@ -57,28 +56,30 @@ describe('kabam-plugin-private-message', function () {
 
     describe('User1 sends message to User2 by post request', function () {
       var response, body, event;
+
       before(function (done) {
+
         kabam.once('notify:pm', function (m) {
           event = m;
-          setTimeout(done, 1000);
+          setTimeout(done, 500);
         });
 
         request({
             'url': 'http://localhost:'+port+'/api/messages/testSpamer2',
             'method': 'POST',
             'json': {
-              'mwckey': User1.apiKey, //authorize as User1
+              'kabamkey': User1.apiKey, //authorize as User1
               'title':'test1title',
               'message': 'test1'
             }
-          },
-          function (err, r, b) {
-            if (err) {
-              throw err;
-            }
-            response = r;
-            body = b;
-          });
+        }, function (err, r, b) {
+          if (err) {
+            throw err;
+          }
+          response = r;
+          body = b;
+        });
+
       });
 
       it('he receives proper response for it', function () {
@@ -100,11 +101,11 @@ describe('kabam-plugin-private-message', function () {
       });
     });
 
-    describe('User2 recieves his recent messages', function () {
+    describe('User2 receives his recent messages', function () {
       var response, body;
       before(function (done) {
         request({
-            'url': 'http://localhost:'+port+'/api/messages?mwckey=' + User2.apiKey,
+            'url': 'http://localhost:'+port+'/api/messages?kabamkey=' + User2.apiKey,
             'method': 'GET'
           },
           function (err, r, b) {
@@ -141,11 +142,11 @@ describe('kabam-plugin-private-message', function () {
 
     });
 
-    describe('User2 recieves dialog with User1', function () {
+    describe('User2 receives dialog with User1', function () {
       var response, body;
       before(function (done) {
         request({
-            'url': 'http://localhost:'+port+'/api/messages/' + User1.username + '?mwckey=' + User2.apiKey,
+            'url': 'http://localhost:'+port+'/api/messages/' + User1.username + '?kabamkey=' + User2.apiKey,
             'method': 'GET'
           },
           function (err, r, b) {

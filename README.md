@@ -11,7 +11,7 @@ It exposes 3 routes
 GET /api/messages?limit=10&offset=0
 ==========================
 
-Get all recent messages for current authenticated user, in reverse 
+Get all recent messages for current authenticated user, in reverse
 chronological order - the most recent messages on top.
 Limit and offset can be ommited.
 
@@ -31,7 +31,7 @@ Mandatory parameters are `username` (string) and `message` (string).
 Optional parameter is `title` (string)
 
 
-When user recieves message, the kabamKernel emits event.
+When user receives message, the kabamKernel emits event.
 
 See example
 
