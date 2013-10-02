@@ -12,12 +12,17 @@ describe('kabam-plugin-private-message', function () {
     kabam = kabamKernel({
       'HOST_URL': 'http://localhost:'+port,
       'MONGO_URL': 'mongodb://localhost/kabam_test',
-      'disableCsrf': true // NEVER DO IT!
+      'DISABLE_CSRF': true // NEVER DO IT!
     });
 
-    kabam.on('started', function (evnt) {
-      done();
+    kabam.on('started', function () {
+      kabam.mongoConnection.on('open', function(){
+        kabam.mongoConnection.db.dropDatabase(function () {
+          done();
+        });
+      });
     });
+
     kabam.usePlugin(require('./../index.js'));
     kabam.start(port);
   });
