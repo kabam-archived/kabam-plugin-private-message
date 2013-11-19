@@ -25,7 +25,7 @@
   "devDependencies":{
     "async":"*",
     "request":"*",
-    "kabam-kernel": "git+https://github.com/mykabam/kabam-kernel.git",
+    "kabam-kernel": "~0.2.11",
     "mocha":"*",
     "should":"*",
     "grunt": "*",
