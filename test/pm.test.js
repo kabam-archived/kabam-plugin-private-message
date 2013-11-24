@@ -5,34 +5,34 @@ var should = require('should'),
   port = 3019;
 
 describe('kabam-plugin-private-message', function () {
-  var kabam;
+  var kernel;
   before(function (done) {
     this.timeout(3000);
 
-    kabam = kabamKernel({
+    kernel = kabamKernel({
       'HOST_URL': 'http://localhost:'+port,
       'MONGO_URL': 'mongodb://localhost/kabam_test',
       'DISABLE_CSRF': true // NEVER DO IT!
     });
 
-    kabam.on('started', function () {
-      kabam.mongoConnection.on('open', function(){
-        kabam.mongoConnection.db.dropDatabase(function () {
+    kernel.on('started', function () {
+      kernel.mongoConnection.on('open', function(){
+        kernel.mongoConnection.db.dropDatabase(function () {
           done();
         });
       });
     });
 
-    kabam.usePlugin(require('./../index.js'));
-    kabam.start(port);
+    kernel.usePlugin(require('./../index.js'));
+    kernel.start(port);
   });
 
   describe('it works', function () {
-    var User1, User2;
+    var user1, user2, world;
     before(function (done) {
-      async.parallel({
-        'user1': function (cb) {
-          kabam.model.User.create({
+      async.waterfall([
+        function (cb) {
+          kernel.model.User.create({
             'username': 'testSpamer1',
             'email': 'testSpamer1@example.org',
             'emailVerified': true,
@@ -40,31 +40,45 @@ describe('kabam-plugin-private-message', function () {
             'isBanned': false
           }, cb);
         },
-        'user2': function (cb) {
-          kabam.model.User.create({
+        function (user, cb) {
+          user1 = user;
+          kernel.model.User.create({
             'username': 'testSpamer2',
             'email': 'testSpamer2@example.org',
             'emailVerified': true,
             'profileComplete': true,
             'isBanned': false
           }, cb);
+        },
+        function (user, cb) {
+          user2 = user;
+          world = new kernel.model.World({
+            name: 'world',
+            description: 'world group',
+            ownerId: user1._id
+          });
+          world.save(cb);
+        },
+        function(group, owner, cb) {
+          world = group;
+          user1 = owner;
+          world.addMember(user2._id, 'member', cb);
         }
-      }, function (err, obj) {
+      ], function (err, user) {
         if (err) {
           throw err;
         }
-        User1 = obj.user1;
-        User2 = obj.user2;
+        user2 = user;
         done();
       });
     });
 
-    describe('User1 sends message to User2 by post request', function () {
+    describe('User1 sends message to user2 by post request', function () {
       var response, body, event;
 
       before(function (done) {
 
-        kabam.once('notify:pm', function (m) {
+        kernel.once('notify:pm', function (m) {
           event = m;
           setTimeout(done, 500);
         });
@@ -73,7 +87,7 @@ describe('kabam-plugin-private-message', function () {
             'url': 'http://localhost:'+port+'/api/messages/testSpamer2',
             'method': 'POST',
             'json': {
-              'kabamkey': User1.apiKey, //authorize as User1
+              'kabamkey': user1.apiKey, //authorize as User1
               'title':'test1title',
               'message': 'test1'
             }
@@ -96,21 +110,21 @@ describe('kabam-plugin-private-message', function () {
         should.exist(event);
       });
       it('event have correct "from" field', function () {
-        event.from._id.should.be.eql(User1._id);
+        event.from._id.should.be.eql(user1._id);
       });
       it('event have correct "user" field', function () {
-        event.user._id.should.be.eql(User2._id);
+        event.user._id.should.be.eql(user2._id);
       });
       it('event have proper contents', function () {
         event.message.should.be.equal('test1');
       });
     });
 
-    describe('User2 receives his recent messages', function () {
+    describe('user2 receives his recent messages', function () {
       var response, body;
       before(function (done) {
         request({
-            'url': 'http://localhost:'+port+'/api/messages?kabamkey=' + User2.apiKey,
+            'url': 'http://localhost:'+port+'/api/messages?kabamkey=' + user2.apiKey,
             'method': 'GET'
           },
           function (err, r, b) {
@@ -129,16 +143,16 @@ describe('kabam-plugin-private-message', function () {
         messages.should.be.instanceOf(Array);
         messages.length.should.be.equal(1);
 
-        messages[0].to.should.be.eql(User2._id.toString());
-        messages[0].toProfile.username.should.be.eql(User2.username);
-        //messages[0].toProfile.gravatar.should.be.eql(User2.gravatar);
-        messages[0].toProfile.isBanned.should.be.eql(User2.isBanned);
+        messages[0].to.should.be.eql(user2._id.toString());
+        messages[0].toProfile.username.should.be.eql(user2.username);
+        //messages[0].toProfile.gravatar.should.be.eql(user2.gravatar);
+        messages[0].toProfile.isBanned.should.be.eql(user2.isBanned);
 
-        messages[0].from.should.be.eql(User1._id.toString());
-        messages[0].from.should.be.eql(User1._id.toString());
-        messages[0].fromProfile.username.should.be.eql(User1.username);
-        //messages[0].fromProfile.gravatar.should.be.eql(User1.gravatar);
-        messages[0].fromProfile.isBanned.should.be.eql(User1.isBanned);
+        messages[0].from.should.be.eql(user1._id.toString());
+        messages[0].from.should.be.eql(user1._id.toString());
+        messages[0].fromProfile.username.should.be.eql(user1.username);
+        //messages[0].fromProfile.gravatar.should.be.eql(user1.gravatar);
+        messages[0].fromProfile.isBanned.should.be.eql(user1.isBanned);
 
         messages[0].message.should.be.equal('test1');
         messages[0].title.should.be.equal('test1title');
@@ -147,11 +161,11 @@ describe('kabam-plugin-private-message', function () {
 
     });
 
-    describe('User2 receives dialog with User1', function () {
+    describe('user2 receives dialog with user1', function () {
       var response, body;
       before(function (done) {
         request({
-            'url': 'http://localhost:'+port+'/api/messages/' + User1.username + '?kabamkey=' + User2.apiKey,
+            'url': 'http://localhost:'+port+'/api/messages/' + user1.username + '?kabamkey=' + user2.apiKey,
             'method': 'GET'
           },
           function (err, r, b) {
@@ -171,15 +185,15 @@ describe('kabam-plugin-private-message', function () {
         messages.length.should.be.equal(1);
 
 
-        messages[0].to.should.be.eql(User2._id.toString());
-        messages[0].toProfile.username.should.be.eql(User2.username);
-        //messages[0].toProfile.gravatar.should.be.eql(User2.gravatar);
-        messages[0].toProfile.isBanned.should.be.eql(User2.isBanned);
+        messages[0].to.should.be.eql(user2._id.toString());
+        messages[0].toProfile.username.should.be.eql(user2.username);
+        //messages[0].toProfile.gravatar.should.be.eql(user2.gravatar);
+        messages[0].toProfile.isBanned.should.be.eql(user2.isBanned);
 
-        messages[0].from.should.be.eql(User1._id.toString());
-        messages[0].fromProfile.username.should.be.eql(User1.username);
-        //messages[0].fromProfile.gravatar.should.be.eql(User1.gravatar);
-        messages[0].fromProfile.isBanned.should.be.eql(User1.isBanned);
+        messages[0].from.should.be.eql(user1._id.toString());
+        messages[0].fromProfile.username.should.be.eql(user1.username);
+        //messages[0].fromProfile.gravatar.should.be.eql(user1.gravatar);
+        messages[0].fromProfile.isBanned.should.be.eql(user1.isBanned);
         messages[0].title.should.be.equal('test1title');
         messages[0].message.should.be.equal('test1');
         //messages.should.be.equal(1);
@@ -191,13 +205,13 @@ describe('kabam-plugin-private-message', function () {
     after(function (done) {
       async.parallel([
         function (cb) {
-          User1.remove(cb);
+          user1.remove(cb);
         },
         function (cb) {
-          User2.remove(cb);
+          user2.remove(cb);
         },
         function (cb) {
-          kabam.model.Message.remove({'from': User1._id}, cb);
+          kernel.model.Message.remove({'from': user1._id}, cb);
         }
       ], done);
     });
@@ -205,7 +219,7 @@ describe('kabam-plugin-private-message', function () {
   });
 
   after(function (done) {
-    kabam.stop();
+    kernel.stop();
     done();
   });
 });

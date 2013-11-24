@@ -1,6 +1,6 @@
 {
   "name": "kabam-plugin-private-message",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Kabam plugin with rest api for sending private messages between users - dialog style",
   "main": "index.js",
   "scripts": {
@@ -19,13 +19,30 @@
   ],
   "author": "Anatolij Ostroumov",
   "license": "MIT",
+  "contributors": [
+    {
+      "name": "Keith Williams (copyright owner)",
+      "url": "http://mywebclass.org",
+      "email": "keith@mywebclass.org"
+    },
+    {
+      "name": "Anatolij Ostroumov (developer)",
+      "url": "https://github.com/vodolaz095",
+      "email": "ostroumov095@gmail.com"
+    },
+    {
+      "name": "The Budiman (developer)",
+      "url": "https://github.com/valmy",
+      "email": "tbudiman@gmail.com"
+    }
+  ],
   "dependencies":{
     "validator":"*"
   },
   "devDependencies":{
     "async":"*",
     "request":"*",
-    "kabam-kernel": "~0.2.11",
+    "kabam-kernel": "~0.3.5",
     "mocha":"*",
     "should":"*",
     "grunt": "*",
