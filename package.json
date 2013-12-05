@@ -1,6 +1,6 @@
 {
   "name": "kabam-plugin-private-message",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Kabam plugin with rest api for sending private messages between users - dialog style",
   "main": "index.js",
   "scripts": {
