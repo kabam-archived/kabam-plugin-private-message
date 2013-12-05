@@ -62,7 +62,7 @@ describe('kabam-plugin-private-message', function () {
         function(group, owner, cb) {
           world = group;
           user1 = owner;
-          world.addMember(user2._id, 'member', cb);
+          world.grantRole(user2._id, 'member', cb);
         }
       ], function (err, user) {
         if (err) {
